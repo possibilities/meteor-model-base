@@ -1,15 +1,24 @@
 Model = {
-  extend: function(attributes) {
+  extend: function(classAttrs) {
     var self = this;
 
     // This is the prototype for all models
-    var modelClass = function(attributes) {
+    var modelClass = function(instanceAttrs) {
 
-      // Mix in the attributes
-      _.extend(this, attributes);
+      // Register the model by it's name if it has one
+      this._modelName = instanceAttrs.modelName;
+      delete instanceAttrs.modelName;
+
+      // Mix in the instanceAttrs
+      _.extend(this, instanceAttrs);
 
       // Boot up all the extensions
       this._initializeExtensions();
+
+      // Run the model instance's initializer
+      if (instanceAttrs.initialize) {
+        instanceAttrs.initialize.call(self, classAttrs);
+      }
     };
     
     // Call initialize on any installed extensions
@@ -18,13 +27,13 @@ Model = {
 
       _.each(Model._extensions, function(extension) {
         if (extension.initialize) {
-          extension.initialize.call(self, attributes);
+          extension.initialize.call(self, classAttrs);
         }
       });
     };
     
     // Extend all models with the child class attributes
-    _.extend(modelClass.prototype, Model.prototype, attributes);
+    _.extend(modelClass.prototype, Model.prototype, classAttrs);
 
     // Extend all the models with any installed extension methods
     _.each(this._extensions, function(methods) {
