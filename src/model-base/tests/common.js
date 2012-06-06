@@ -17,6 +17,9 @@ Model.extension({
     this.extensionInitializeCount++;
     this.extensionInitializeCount++;
   },
+  initializeClass: function(modelClass) {
+    modelClass._isExtended = true;
+  },
   extensionMethod: function() {
     return 3;
   }
@@ -43,7 +46,10 @@ Tinytest.add("model-base", function (test) {
   
   // If you install an extension it's methods should be
   // available on any model instance
-  // console.log(mikeLombardo);
   test.equal(mikeLombardo.extensionMethod(), 3);
+  
+  // If you install an extension with a class initializer
+  // it should be able to operate on the subclass
+  test.isTrue(User._isExtended);
   
 });

@@ -2,13 +2,13 @@ Model = {
   extend: function(classAttrs) {
     var classSelf = this;
 
+    // Register the model by it's name if it has one
+    classAttrs._modelName = classAttrs.modelName;
+    delete classAttrs.modelName;
+
     // This is the prototype for all models
     var modelClass = function(instanceAttrs) {
       var modelSelf = this;
-
-      // Register the model by it's name if it has one
-      this._modelName = instanceAttrs.modelName;
-      delete instanceAttrs.modelName;
 
       // Mix in the instanceAttrs
       _.extend(this, instanceAttrs);
@@ -37,17 +37,47 @@ Model = {
         }
       });
     };
-    
+
+    // Extensions can have a class initializer
+    Model._applyExtensions(modelClass);
+
     // Extend all models with the child class attributes
     _.extend(modelClass.prototype, Model.prototype, classAttrs);
+
+    // Keep track of model classes because we might 
+    // need to extend them if additional extensions
+    // are defined after the class is defined
+    Model._registry || (Model._registry = []);
+    Model._registry.push(modelClass);
 
     // Done! Time to play!
     return modelClass;
   },
 
+  _applyExtensions: function(modelClass) {
+    _.each(Model._extensions, function(extension) {
+      if (extension.initializeClass) {
+        extension.initializeClass(modelClass);
+      }
+    });
+  },
+
+  _applyExtensionToExistingClasses: function(extension) {
+    if (extension.initializeClass) {
+      _.each(Model._registry, function(modelClass) {
+        extension.initializeClass(modelClass);
+      });
+    }
+  },
+
   // Install an extension
   extension: function(extension) {
+    // Add extension to the extension registry
     this._extensions || (this._extensions = []);
     this._extensions.push(extension);
+
+    // If we've already defined classes make sure they
+    // get extended
+    Model._applyExtensionToExistingClasses(extension);
   }
 };
