@@ -1,0 +1,8 @@
+{
+  "name": "model-base",
+  "description": "A base for writing model extensions",
+  "homepage": "https://github.com/possibilities/meteor-model-base",
+  "author": "Mike Bannister <notimpossiblemike@gmail.com> (http://po.ssibiliti.es)",
+  "version": "0.0.2",
+  "git": "https://github.com/possibilities/meteor-model-base.git"
+}
