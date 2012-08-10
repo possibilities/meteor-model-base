@@ -2,7 +2,11 @@
 
 A base for writing model extensions
 
-# TODO
+## Usage
+
+TODO For now look at the tests
+
+## TODO
 
 Many things!
 
